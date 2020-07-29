@@ -51,7 +51,7 @@ def simulate():
 
 
 if __name__ == "__main__":
-    env = gym.make("Pygame-v0")
+    env = gym.make("Pygame-babak")
     MAX_EPISODES = 9999
     MAX_TRY = 1000
     epsilon = 1
