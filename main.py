@@ -5,9 +5,10 @@ import random
 
 import gym
 import gym_game
+from gym_game.envs.observer import Observer
 
 def simulate():
-    global epsilon, epsilon_decay
+    global epsilon, epsilon_decay, render_detail_move
     for episode in range(MAX_EPISODES):
 
         # Init environment
@@ -19,9 +20,9 @@ def simulate():
 
             # In the beginning, do random action to learn
             if random.uniform(0, 1) < epsilon:
-                action = env.action_space.sample()
+                action = env.action_space.sample() # Exploration
             else:
-                action = np.argmax(q_table[state])
+                action = np.argmax(q_table[state]) # Exploitation
 
             # Do action and get result
             next_state, reward, done, _ = env.step(action)
@@ -38,20 +39,28 @@ def simulate():
             state = next_state
 
             # Draw games
-            env.render()
+            if(render_detail_move == True):
+                env.render()
 
             # When episode is done, print reward
             if done or t >= MAX_TRY - 1:
                 print("Episode %d finished after %i time steps with total reward = %f." % (episode, t, total_reward))
                 break
+        
+        if(render_detail_move == False):
+            env.render()
 
         # exploring rate decay
         if epsilon >= 0.005:
             epsilon *= epsilon_decay
 
+def s_key_pressed():
+    global render_detail_move
+    render_detail_move = not render_detail_move
 
 if __name__ == "__main__":
-    env = gym.make("Babak-v0")
+    env = gym.make("Babak-v0", observer=Observer(s_key_pressed))
+    render_detail_move = False
     MAX_EPISODES = 9999
     MAX_TRY = 1000
     epsilon = 1

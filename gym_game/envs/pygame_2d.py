@@ -1,5 +1,6 @@
 import pygame
 import math
+from gym_game.envs.observer import Observer
 
 screen_width = 1500
 screen_height = 800
@@ -130,7 +131,7 @@ class Car:
         self.four_points = [left_top, right_top, left_bottom, right_bottom]
 
 class PyGame2D:
-    def __init__(self):
+    def __init__(self, observer):
         pygame.init()
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         self.clock = pygame.time.Clock()
@@ -138,6 +139,7 @@ class PyGame2D:
         self.car = Car('car.png', 'map.png', [700, 650])
         self.game_speed = 60
         self.mode = 0
+        self.observer = observer
 
     def action(self, action):
         if action == 0:
@@ -195,6 +197,8 @@ class PyGame2D:
                 if event.key == pygame.K_m:
                     self.mode += 1
                     self.mode = self.mode % 3
+                elif event.key == pygame.K_s:
+                    self.observer.s_key_pressed()
 
         self.screen.blit(self.car.map, (0, 0))
 
@@ -212,7 +216,7 @@ class PyGame2D:
         self.car.draw(self.screen)
 
 
-        text = self.font.render("Press 'm' to change view mode", True, (255, 255, 0))
+        text = self.font.render("Press 's' to switch rendering in episodes", True, (35, 55, 0))
         text_rect = text.get_rect()
         text_rect.center = (screen_width/2, 100)
         self.screen.blit(text, text_rect)
