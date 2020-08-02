@@ -11,6 +11,14 @@ import json
 import os
 import numpy
 
+# Policy take a state and returns an action
+def policy(state):
+    global epsilon, q_table
+    if random.uniform(0, 1) < epsilon:
+        return env.action_space.sample() # Exploration
+
+    return np.argmax(q_table[state]) # Exploitation
+
 def learn():
     global epsilon, epsilon_decay, render_detail_move, q_table
     for episode in range(MAX_EPISODES):
@@ -22,11 +30,8 @@ def learn():
         # AI tries up to MAX_TRY times
         for t in range(MAX_TRY):
 
-            # In the beginning, do random action to learn
-            if random.uniform(0, 1) < epsilon:
-                action = env.action_space.sample() # Exploration
-            else:
-                action = np.argmax(q_table[state]) # Exploitation
+            # Policy is to do random action to learn at begining
+            action = policy(state)
 
             # Do action and get result
             next_state, reward, done, _ = env.step(action)
