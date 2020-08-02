@@ -41,6 +41,7 @@ def learn():
             q_value = q_table[state][action]
             best_q = np.max(q_table[next_state])
 
+            # Temporal Difference Method:
             # Q(state, action) <- (1 - a)Q(state, action) + a(reward + rmaxQ(next state, all actions))
             q_table[state][action] = (1 - learning_rate) * q_value + learning_rate * (reward + gamma * best_q)
 
