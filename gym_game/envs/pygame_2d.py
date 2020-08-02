@@ -197,8 +197,8 @@ class PyGame2D:
                 if event.key == pygame.K_m:
                     self.mode += 1
                     self.mode = self.mode % 3
-                elif event.key == pygame.K_s:
-                    self.observer.s_key_pressed()
+                else:
+                    self.observer.s_key_pressed(event.key)
 
         self.screen.blit(self.car.map, (0, 0))
 
@@ -215,10 +215,14 @@ class PyGame2D:
         self.car.draw_radar(self.screen)
         self.car.draw(self.screen)
 
+        text = self.font.render("Press 'Esc' to exit", True, (55, 55, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (screen_width/2, 20)
+        self.screen.blit(text, text_rect)
 
         text = self.font.render("Press 's' to switch rendering in episodes", True, (35, 55, 0))
         text_rect = text.get_rect()
-        text_rect.center = (screen_width/2, 100)
+        text_rect.center = (screen_width/2, 60)
         self.screen.blit(text, text_rect)
 
 

@@ -10,7 +10,6 @@ class CustomEnv(gym.Env):
         self.pygame = PyGame2D(None)
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(np.array([0, 0, 0, 0, 0]), np.array([10, 10, 10, 10, 10]), dtype=np.int)
-        # self.observer = Observer(None)
         self.observer = observer
 
     def reset(self):
