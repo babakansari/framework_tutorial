@@ -20,7 +20,7 @@ def policy(state):
     return np.argmax(q_table[state]) # Exploitation
 
 def learn():
-    global epsilon, epsilon_decay, render_detail_move, q_table
+    global epsilon, learning_rate, render_detail_move, q_table
     for episode in range(MAX_EPISODES):
 
         # Init environment
@@ -64,10 +64,15 @@ def learn():
         if(render_detail_move == False):
             env.render()
 
-        # exploring rate decay
-        if epsilon >= 0.005:
-            epsilon *= epsilon_decay
-    
+        epsilon = get_rate(epsilon)
+        learning_rate = get_rate(learning_rate)
+            
+def get_rate(i):
+    global epsilon_decay
+    return (i * epsilon_decay)
+
+# def get_rate(t, i):
+#     return max(i, min(1, 1.0 + math.log10((t+1)/25)))  
 
 def s_key_pressed(key):
     global render_detail_move, exit_program
@@ -79,12 +84,13 @@ def s_key_pressed(key):
 if __name__ == "__main__":
     env = gym.make("Babak-v0", observer=Observer(s_key_pressed))
     render_detail_move = False
-    MAX_EPISODES = 999999
-    MAX_TRY = 10000
-    epsilon = 1
+    MAX_EPISODES = 9999999
+    MAX_TRY = 100000
     epsilon_decay = 0.9999
-    learning_rate = 0.1
-    gamma = 0.6
+    epsilon = 1
+    learning_rate = 0.5
+
+    gamma = 0.8
     exit_program = False
     num_box = tuple((env.observation_space.high + np.ones(env.observation_space.shape)).astype(int))
     # Load Q-Table

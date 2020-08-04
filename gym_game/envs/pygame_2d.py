@@ -1,6 +1,7 @@
 import pygame
 import math
 from gym_game.envs.observer import Observer
+import numpy as np
 
 screen_width = 1500
 screen_height = 800
@@ -131,6 +132,9 @@ class Car:
         self.four_points = [left_top, right_top, left_bottom, right_bottom]
 
 class PyGame2D:
+    straight = np.array([0,1,0])
+    left = np.array([1,0,0])
+    right = np.array([0,0,1])
     def __init__(self, observer):
         pygame.init()
         self.screen = pygame.display.set_mode((screen_width, screen_height))
@@ -142,11 +146,11 @@ class PyGame2D:
         self.observer = observer
 
     def action(self, action):
-        if action == 0:
-            self.car.speed += 2
-        if action == 1:
+        if np.array_equal(action, self.straight):
+            self.car.speed += 22
+        if np.array_equal(action, self.left):
             self.car.angle += 5
-        elif action == 2:
+        elif np.array_equal(action, self.right):
             self.car.angle -= 5
 
         self.car.update()
