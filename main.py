@@ -16,23 +16,49 @@ def in_confidence_interval(e, percent):
     return e > percent and e < (1-percent)
 
 def action_from_sensors(state):
-    direction = np.argmax(state)
-    if direction == 2:
+    left_weight = (state[0]+state[1])/2
+    right_weight = (state[3]+state[4])/2
+    
+    direction = np.argmax( np.array([ left_weight, state[2], right_weight ]) )
+
+    if direction == 1:
         return 0
-    elif direction < 2 :
+    elif direction < 1 :
         return 2
     else:
         return 1
 
 # Policy take a state and returns an action
-def policy(state, q_table):
+
+# Random
+def policy_1(state, q_table):
+    global epsilon
+    if random.uniform(0, 1) < epsilon:
+        return env.action_space.sample() # Exploration
+
+    return np.argmax(q_table[state]) # Exploitation
+
+# Confidence Intervals
+def policy_2(state, q_table):
     global epsilon
     rand = random.uniform(0, 1)
-    if( in_confidence_interval(rand, 0.05) and np.std(state)>2.5 ):
-        print("State variance %f" % (np.std(state)))
+    if( in_confidence_interval(rand, 0.05) ):
         return action_from_sensors(state) # Confident move
     else:
         if rand < epsilon:
+            return env.action_space.sample() # Exploration
+        else:
+            return np.argmax(q_table[state]) # Exploitation
+
+# Variance
+def policy(state, q_table, v):
+    global epsilon
+    
+    if( v>11 ):
+        return action_from_sensors(state) # Confident move
+    else:
+        epsilon = get_rate(epsilon)
+        if random.uniform(0, 1) < epsilon:
             return env.action_space.sample() # Exploration
         else:
             return np.argmax(q_table[state]) # Exploitation
@@ -49,7 +75,9 @@ def train(q_table):
         for t in range(MAX_TRY):
 
             # Policy is to do random action to learn at begining
-            action = policy(state, q_table)
+            v = np.var(state)
+            sys.stdout.write("Sensors variance:" + str(v) + " \r")
+            action = policy(state, q_table, v)
 
             # Do action and get result
             next_state, reward, done, _ = env.step(action)
@@ -73,7 +101,7 @@ def train(q_table):
             # When episode is done, print reward
 
             if done or t >= MAX_TRY - 1:
-                print("Episode %d on %i steps with reward = %f and %f epsilon" % (episode, t, total_reward, epsilon))
+                print("Episode %d on %i steps. Reward = %f, %f Epsilon, State variance %.2f" % (episode, t, total_reward, epsilon, v))
                 break
 
             if exit_program:
@@ -82,7 +110,7 @@ def train(q_table):
         if(render_detail_move == False):
             env.render()
 
-        epsilon = get_rate(epsilon)
+        # epsilon = get_rate(epsilon)
             
 def get_rate(i):
     global epsilon_decay
@@ -113,6 +141,7 @@ def apply_learning(q_table):
         # Set up for the next iteration
         state = next_state
         if exit_program or done:
+            print("Done %d, reward %d" % (done, reward))
             break
         env.render()
 
@@ -123,7 +152,7 @@ if __name__ == "__main__":
     MAX_EPISODES = 9999
     MAX_TRY = 1000
     epsilon = 1
-    epsilon_decay = 0.999
+    epsilon_decay = 0.9999
     learning_rate = 0.1
     gamma = 0.6
 
