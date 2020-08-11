@@ -50,7 +50,7 @@ def policy_2(state, q_table):
         else:
             return np.argmax(q_table[state]) # Exploitation
 
-# Variance
+# Variance  
 def policy(state, q_table, v):
     global epsilon
     
