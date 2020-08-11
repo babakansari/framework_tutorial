@@ -1,9 +1,17 @@
 import pygame
 import math
+from gym_game.envs.observer import Observer
+import numpy as np
 
 screen_width = 1500
 screen_height = 800
-check_point = ((1200, 660), (1250, 120), (190, 200), (1030, 270), (250, 475), (650, 690))
+check_point = ((1365, 595), 
+                (1395, 290), 
+                (740, 230), 
+                (185, 270), 
+                (170, 600), 
+                (650, 700))
+#check_point = ((1200, 660), (1250, 120), (190, 200), (1030, 270), (250, 475), (650, 690))
 
 class Car:
     def __init__(self, car_file, map_file, pos):
@@ -130,7 +138,10 @@ class Car:
         self.four_points = [left_top, right_top, left_bottom, right_bottom]
 
 class PyGame2D:
-    def __init__(self):
+    # straight = np.array([0,1,0])
+    # left = np.array([1,0,0])
+    # right = np.array([0,0,1])
+    def __init__(self, observer):
         pygame.init()
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         self.clock = pygame.time.Clock()
@@ -138,15 +149,21 @@ class PyGame2D:
         self.car = Car('car.png', 'map.png', [700, 650])
         self.game_speed = 60
         self.mode = 0
+        self.observer = observer
 
     def action(self, action):
+        # if np.array_equal(action, self.straight):
+        #     self.car.speed += 22
+        # if np.array_equal(action, self.left):
+        #     self.car.angle += 5
+        # elif np.array_equal(action, self.right):
+        #     self.car.angle -= 5
         if action == 0:
             self.car.speed += 2
         if action == 1:
             self.car.angle += 5
         elif action == 2:
             self.car.angle -= 5
-
         self.car.update()
         self.car.check_collision()
         self.car.check_checkpoint()
@@ -168,6 +185,7 @@ class PyGame2D:
 
         elif self.car.goal:
             reward = 10000
+
         return reward
 
     def is_done(self):
@@ -195,6 +213,8 @@ class PyGame2D:
                 if event.key == pygame.K_m:
                     self.mode += 1
                     self.mode = self.mode % 3
+                else:
+                    self.observer.s_key_pressed(event.key)
 
         self.screen.blit(self.car.map, (0, 0))
 
@@ -207,20 +227,24 @@ class PyGame2D:
             self.car.check_radar_for_draw(d)
 
         pygame.draw.circle(self.screen, (255, 255, 0), check_point[self.car.current_check], 70, 1)
+
         self.car.draw_collision(self.screen)
         self.car.draw_radar(self.screen)
         self.car.draw(self.screen)
 
-
-        text = self.font.render("Press 'm' to change view mode", True, (255, 255, 0))
+        text = self.font.render("Press 'Esc' to exit", True, (55, 55, 0))
         text_rect = text.get_rect()
-        text_rect.center = (screen_width/2, 100)
+        text_rect.center = (screen_width/2, 20)
         self.screen.blit(text, text_rect)
 
-
+        text = self.font.render("Press 's' to switch rendering in episodes", True, (35, 55, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (screen_width/2, 60)
+        self.screen.blit(text, text_rect)
 
         pygame.display.flip()
         self.clock.tick(self.game_speed)
+
 
 
 def get_distance(p1, p2):
